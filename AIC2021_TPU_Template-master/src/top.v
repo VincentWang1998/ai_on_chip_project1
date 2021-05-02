@@ -1,11 +1,10 @@
 //============================================================================//
 // AIC2021 Project1 - TPU Design                                              //
-// file: top.v                                                                //
-// description: Top module complete your TPU design here                      //
-// authors: kaikai (deekai9139@gmail.com)                                     //
-//          suhan  (jjs93126@gmail.com)                                       //
+// file: pe.v                                                                 //
+// description: Top module                                                    //
+// authors: yuwen (vincent08tw@yahoo.com.tw)                                  //
+//                                                                            //
 //============================================================================//
-
 `include "define.v"
 `include "global_buffer.v"
 
@@ -45,8 +44,8 @@ module top(clk, rst, start, m, n,  k, done);
 		  .data_in_a	(data_out_a),
 		  .data_in_b	(data_out_b),
 		  .data_in_o	(data_out_o),
-		  .data_out_a	(data_in_a),
-		  .data_out_b	(data_in_b),
+		  //.data_out_a	(data_in_a),
+		  //.data_out_b	(data_in_b),
 		  .data_out_o	(data_in_o),
 		  .m			(m),
 		  .n			(n),

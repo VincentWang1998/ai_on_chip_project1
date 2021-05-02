@@ -1,3 +1,11 @@
+//============================================================================//
+// AIC2021 Project1 - TPU Design                                              //
+// file: pe.v                                                                 //
+// description: processing element module                                     //
+// authors: yuwen (vincent08tw@yahoo.com.tw)                                  //
+//                                                                            //
+//============================================================================//
+
 `include "define.v"
 
 module PE(clk,rst,in_left,in_up,in_weight,out_right,out_down,weight_en,go,z_weight);

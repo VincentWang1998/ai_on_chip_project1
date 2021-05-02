@@ -1,3 +1,11 @@
+//============================================================================//
+// AIC2021 Project1 - TPU Design                                              //
+// file: pe.v                                                                 //
+// description: TPU module                                                    //
+// authors: yuwen (vincent08tw@yahoo.com.tw)                                  //
+//                                                                            //
+//============================================================================//
+
 // `define DATA_SIZE 8
 // `define WORD_SIZE 32
 // `define GBUFF_ADDR_SIZE 256
