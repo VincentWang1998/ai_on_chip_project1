@@ -9,7 +9,6 @@
 `timescale 1ns/10ps
 `include "define.v"
 `include "top.v"
-`include "TPU.v"
 
 module top_tb;
 
@@ -40,17 +39,9 @@ module top_tb;
     clk = 0;  rst = 1; start = 0;
     #(`CYCLE) rst = 0; start = 1;
     row_a = `MATRIX_A_ROW; col_b = `MATRIX_B_COL; k = `MATRIX_A_COL;
-	// $readmemb("build/matrix_a.bin", TOP.GBUFF_A.gbuff);
-    // $readmemb("build/matrix_b.bin", TOP.GBUFF_B.gbuff);
-    // $readmemb("build/golden.bin", GOLDEN); 
-	
-	// $readmemb("build2/matrix_a.bin", TOP.GBUFF_A.gbuff);
-    // $readmemb("build2/matrix_b.bin", TOP.GBUFF_B.gbuff);
-    // $readmemb("build2/golden.bin", GOLDEN); 
-	
-    $readmemb("build3/matrix_a.bin", TOP.GBUFF_A.gbuff);
-    $readmemb("build3/matrix_b.bin", TOP.GBUFF_B.gbuff);
-    $readmemb("build3/golden.bin", GOLDEN); 
+    $readmemb("build/matrix_a.bin", TOP.GBUFF_A.gbuff);
+    $readmemb("build/matrix_b.bin", TOP.GBUFF_B.gbuff);
+    $readmemb("build/golden.bin", GOLDEN); 
 
     //for (i = 0; i < `MATRIX_A_ROW*`MATRIX_B_COL/4; i=i+1) begin
     //  $display("%h %h %h %h",
@@ -58,7 +49,7 @@ module top_tb;
     //end
     row_offset = (`MATRIX_B_COL >= 9)? 3:
                  (`MATRIX_B_COL >= 5 && `MATRIX_B_COL < 9)? 2: 1;
-
+	//$display ("done : %d", done);
     wait(done == 1);
     $display("\nSimulation Done.\n");
 
@@ -215,4 +206,3 @@ module top_tb;
 
 
 endmodule
-

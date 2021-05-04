@@ -12,6 +12,9 @@
 // `define GBUFF_INDX_SIZE (GBUFF_ADDR_SIZE/WORD_SIZE)
 // `define GBUFF_INDX_SIZE 8
 // `define GBUFF_SIZE (WORD_SIZE*GBUFF_ADDR_SIZE)
+`ifndef TPU_V
+`define TPU_V
+
 `include "define.v"
 `include "pe.v"
 `define LEFT_BUF_SIZE 7 
@@ -60,7 +63,7 @@ module TPU(clk, rst, wr_en_a, wr_en_b, wr_en_o, index_a, index_b, index_o,
 						 mem_b_index,
 						 mem_o_index;*/
 	
-	integer i;
+	integer i,j;
 	//reg [5:0] /*row_buf_a, row_buf_b,*/ base_buf_a;
 	//reg [5:0] col_buf_a, col_buf_b, base_buf_b;
 	reg weight_en [15:0];
@@ -78,9 +81,9 @@ module TPU(clk, rst, wr_en_a, wr_en_b, wr_en_o, index_a, index_b, index_o,
 	reg [1:0] out_count;
 	reg [4:0] weight_base;
 	reg go_pe,pe_ok;
-	reg [3:0] temp_m, temp_n, temp_ka, temp_kb, temp_a, temp_b, temp_o;
-	reg [3:0] base_a, base_b;
-	reg [4:0] exe_count;
+	reg [8:0] temp_m, temp_n, temp_ma, temp_ka, temp_kb, temp_nb, temp_a, temp_b, temp_o, a_count;
+	reg [8:0] base_a, base_b, out_max;
+	reg [8:0] exe_count;
 	PE pe00(.clk(clk), .rst(rst), 
 			.in_left(left_buf0[0]), .in_up(8'd0), .in_weight(data_in_b[31:24]),
 			.out_right(wire_row_0[23:16]), .out_down(wire_col_0[23:16]), .weight_en(weight_en[0]),
@@ -173,9 +176,10 @@ module TPU(clk, rst, wr_en_a, wr_en_b, wr_en_o, index_a, index_b, index_o,
 				//row_buf_a = 0; row_buf_b = 0; 
 				//col_buf_a = 0; col_buf_b = 0;
 				//base_buf_a = 0; base_buf_b = 0;
-				temp_m = m; temp_n = n; temp_ka = k; temp_kb = k;
-				temp_a = 0; temp_b = 0; temp_o = 0;
-				base_a = 0; base_b = 0;
+				temp_m = m; temp_n = n; temp_ka = k; temp_kb = 0;
+				temp_a = 0; temp_b = 0; temp_o = 0; temp_ma = 0; a_count = 1;
+				base_a = 0; base_b = 0; out_max = m;
+				temp_nb = 0;
 				exe_count = 0;
 				out_count = 0;
 				wr_en_o = 0;
@@ -196,24 +200,24 @@ module TPU(clk, rst, wr_en_a, wr_en_b, wr_en_o, index_a, index_b, index_o,
 				
 				index_a = temp_a + 1;
 				index_b = temp_b + 1;
-				if(load_count == 0 && temp_a < k) begin
+				if(load_count == 0 && /*temp_a < k*/ temp_ma <= m) begin
 					{left_buf0[0],left_buf0[1],left_buf0[2],left_buf0[3],left_buf0[4],left_buf0[5],left_buf0[6]} = {data_in_a, 24'd0};
 				end
-				else if(load_count == 1 && temp_a < k) begin
+				else if(load_count == 1 && /*temp_a < k*/ temp_ma <= m) begin
 					{left_buf1[0],left_buf1[1],left_buf1[2],left_buf1[3],left_buf1[4],left_buf1[5],left_buf1[6]} = {8'd0,data_in_a, 16'd0};
 				end
-				else if(load_count == 2 && temp_a < k) begin
+				else if(load_count == 2 && /*temp_a < k*/ temp_ma <= m) begin
 					{left_buf2[0],left_buf2[1],left_buf2[2],left_buf2[3],left_buf2[4],left_buf2[5],left_buf2[6]} = {16'd0,data_in_a, 8'd0};
 				end
-				else if(load_count == 3 && temp_a < k) begin
+				else if(load_count == 3 && /*temp_a < k*/ temp_ma <= m) begin
 					{left_buf3[0],left_buf3[1],left_buf3[2],left_buf3[3],left_buf3[4],left_buf3[5],left_buf3[6]} = {24'd0,data_in_a};
 				end
 				
-				if(index_a >= k || (index_a) % 4 == 0) begin
-					if(load_count != 0) 
+				if(((index_a >= ((k)*a_count))&&(index_a > 4)) || (load_count) == 3) begin
+					//if(load_count != 0) 
 						state_nxt = EXE;
-					else
-						state_nxt = LOAD;
+					//else
+						//state_nxt = LOAD;
 				end
 				else begin
 					state_nxt = LOAD;
@@ -236,8 +240,8 @@ module TPU(clk, rst, wr_en_a, wr_en_b, wr_en_o, index_a, index_b, index_o,
 				weight_base = 0;
 				wr_en_o = 0;
 				go_pe = 1;
-				for(i = 0; i <= 15; i = i + 1) begin
-					weight_en[i] = 0;
+				for(j = 0; j <= 15; j = j + 1) begin
+					weight_en[j] = 0;
 				end
 				
 				if(exe_count == 11) begin
@@ -268,6 +272,7 @@ module TPU(clk, rst, wr_en_a, wr_en_b, wr_en_o, index_a, index_b, index_o,
 				// output_buf[3] = output_buf[3] + {down_buf3[1],down_buf2[2],down_buf1[3],down_buf0[4]};
 				if( ((base_a + 1) % k == 0 ) || ((base_a + 2) % k == 0 ) || ((base_a + 3) % k == 0 ) || ((base_a + 4) % k == 0 ) && ((base_b + 1) % k == 0 ) || ((base_b + 2) % k == 0 ) || ((base_b + 3) % k == 0 ) || ((base_b + 4) % k == 0 )) begin
 					state_nxt = OUTPUT;
+					temp_ma = temp_ma + 4;
 				end
 				else begin
 					base_a = base_a + 4;
@@ -289,6 +294,7 @@ module TPU(clk, rst, wr_en_a, wr_en_b, wr_en_o, index_a, index_b, index_o,
 			end
 			OUTPUT: begin
 				wr_en_o = 1'b1; //buffer write
+				
 				if(out_count == 0) begin
 					data_out_o = output_buf[0];
 				end
@@ -302,11 +308,13 @@ module TPU(clk, rst, wr_en_a, wr_en_b, wr_en_o, index_a, index_b, index_o,
 					data_out_o = output_buf[3];
 				end
 				
-				if( (temp_o+1) % 4 == 0) begin
+				
+				if(((out_count+1) >= out_max) || (out_count == 3)) begin
 					if(temp_o >= ((((n-1)/4)+1)*m)-1 ) begin
 						state_nxt = DONE;
 					end
 					else begin
+						/*
 						if( (temp_o - 1) % k == 0) begin
 							for(i=0; i<4; i=i+1) begin
 								output_buf[i] = 0;
@@ -317,15 +325,33 @@ module TPU(clk, rst, wr_en_a, wr_en_b, wr_en_o, index_a, index_b, index_o,
 								output_buf[i] = output_buf[i];
 							end
 						end
+						*/
+						for(i=0; i<4; i=i+1) begin
+							output_buf[i] = 0;
+						end
 						state_nxt = LOAD;
 						load_count = 0;
+						a_count = a_count + 1;
 						
-						
-						if( (base_a + 1) % k == 0) base_a = base_a + 1;
-						else if( (base_a + 2) % k == 0) base_a = base_a + 2;
-						else if( (base_a + 3) % k == 0) base_a = base_a + 3;
-						else if( (base_a + 4) % k == 0) base_a = base_a + 4;
-						base_b = ((temp_o+1) / k) * k;
+						if(temp_ma >= m) begin
+							temp_ma = 0;
+							base_a = 0;
+							a_count = 1;
+							base_b = temp_kb + k;
+							temp_kb = temp_kb + k;
+							out_max = m;
+						end
+						else begin
+							base_b = temp_kb;
+							out_max = out_max - 4;
+							if( (base_a + 1) % k == 0) base_a = base_a + 1;
+							else if( (base_a + 2) % k == 0) base_a = base_a + 2;
+							else if( (base_a + 3) % k == 0) base_a = base_a + 3;
+							else if( (base_a + 4) % k == 0) base_a = base_a + 4;
+						end
+						//base_b = ((temp_o+1) / k) * k;
+						index_a = base_a;
+						index_b = base_b;
 						
 						
 					end
@@ -420,8 +446,9 @@ module TPU(clk, rst, wr_en_a, wr_en_b, wr_en_o, index_a, index_b, index_o,
 					exe_count <= exe_count + 1;
 				end
 				STORE: begin
-					temp_a <= base_a;
-					temp_b <= base_b;
+					// temp_a <= base_a;
+					// temp_b <= base_b;
+					
 					output_buf[0] <= output_buf[0] + {down_buf3[4],down_buf2[5],down_buf1[6],down_buf0[7]};
 					output_buf[1] <= output_buf[1] + {down_buf3[3],down_buf2[4],down_buf1[5],down_buf0[6]};
 					output_buf[2] <= output_buf[2] + {down_buf3[2],down_buf2[3],down_buf1[4],down_buf0[5]};
@@ -445,6 +472,8 @@ module TPU(clk, rst, wr_en_a, wr_en_b, wr_en_o, index_a, index_b, index_o,
 					out_count <= out_count + 1;
 					index_o <= index_o + 1;
 					temp_o <= temp_o + 1;
+					temp_a <= base_a;
+					temp_b <= base_b;
 				/*
 					if(mem_o_index < (m * k)) begin
 						data_out_o <= mem_o[mem_o_index];
@@ -466,3 +495,5 @@ module TPU(clk, rst, wr_en_a, wr_en_b, wr_en_o, index_a, index_b, index_o,
 		end
 	end
 endmodule
+`endif
+

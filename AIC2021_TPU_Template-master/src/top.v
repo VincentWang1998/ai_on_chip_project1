@@ -7,6 +7,7 @@
 //============================================================================//
 `include "define.v"
 `include "global_buffer.v"
+`include "TPU.v"
 
 module top(clk, rst, start, m, n,  k, done);
 

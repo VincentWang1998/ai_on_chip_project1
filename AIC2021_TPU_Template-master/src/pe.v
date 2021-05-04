@@ -6,8 +6,10 @@
 //                                                                            //
 //============================================================================//
 
-`include "define.v"
 
+`ifndef PE_V
+`define PE_V
+`include "define.v"
 module PE(clk,rst,in_left,in_up,in_weight,out_right,out_down,weight_en,go,z_weight);
 	
 	input clk, rst;
@@ -49,3 +51,4 @@ module PE(clk,rst,in_left,in_up,in_weight,out_right,out_down,weight_en,go,z_weig
 		end
 	end
 endmodule
+`endif
