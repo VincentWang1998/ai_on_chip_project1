@@ -37,8 +37,8 @@ module PE(clk,rst,in_left,in_up,in_weight,out_right,out_down,weight_en,go,z_weig
 			weight <= 0;
 		end
 		else begin
-			if(weight_en) weight = in_weight;
-			else weight = weight;
+			if(weight_en) weight <= in_weight;
+			else weight <= weight;
 			
 			if(go) begin
 				out_right <= in_left;
