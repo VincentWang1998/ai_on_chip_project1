@@ -1,8 +1,7 @@
-# AIC2021 Project1 - TPU - N26091411
+# AIC2021 Project1 - TPU - vincent08tw
 ###### tags: `aic2021` 
 
 ## Outline
-[Student ID](https://github.com/vincent08tw/ai_on_chip_project1/tree/main/AIC2021_TPU_Template-master#student-id)  
 [Project Description](https://github.com/vincent08tw/ai_on_chip_project1/tree/main/AIC2021_TPU_Template-master#project-description)  
 [Project directory hierachy](https://github.com/vincent08tw/ai_on_chip_project1/tree/main/AIC2021_TPU_Template-master#project-directory-hierachy)  
 [Testbench1~3 and monster (Use ModelSim)](https://github.com/vincent08tw/ai_on_chip_project1/tree/main/AIC2021_TPU_Template-master#testbench13-and-monster-use-modelsim)  
@@ -15,8 +14,6 @@
 [TOP Simulation Achitecture](https://github.com/vincent08tw/ai_on_chip_project1/tree/main/AIC2021_TPU_Template-master#top-simulation-achitecture)  
 [Testbench](https://github.com/vincent08tw/ai_on_chip_project1/tree/main/AIC2021_TPU_Template-master#testbench)  
 
-## Student ID 
-N26091411
 
 ## Project Description
 This project use weight stationary method.  
