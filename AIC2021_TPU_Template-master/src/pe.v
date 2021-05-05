@@ -10,7 +10,7 @@
 `ifndef PE_V
 `define PE_V
 `include "define.v"
-module PE(clk,rst,in_left,in_up,in_weight,out_right,out_down,weight_en,go,z_weight);
+module PE(clk,rst,in_left,in_up,in_weight,out_right,out_down,weight_en,go);
 	
 	input clk, rst;
 	input [`DATA_SIZE-1:0] in_left;
@@ -18,18 +18,9 @@ module PE(clk,rst,in_left,in_up,in_weight,out_right,out_down,weight_en,go,z_weig
 	input [`DATA_SIZE-1:0] in_weight;
 	output reg [`DATA_SIZE-1:0] out_right;
 	output reg [`DATA_SIZE-1:0] out_down;
-	input weight_en,go,z_weight;
+	input weight_en,go;
 	
 	reg [`DATA_SIZE-1:0] weight;
-	always @(*) begin
-		if(z_weight) begin
-			weight = 0;
-		end
-		else begin
-			// if(weight_en) weight = in_weight;
-			// else weight = weight;
-		end
-	end
 
 	always @(posedge clk or posedge rst) begin
 		if(rst) begin
